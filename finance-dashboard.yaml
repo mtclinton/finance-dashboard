@@ -116,3 +116,91 @@ spec:
         requests:
           storage: 5Gi
 
+---
+# ===========================================
+# BACKEND SERVICE (Deployment)
+# ===========================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: finance-backend
+  namespace: finance
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: finance-backend
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finance-backend
+  namespace: finance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: finance-backend
+  template:
+    metadata:
+      labels:
+        app: finance-backend
+    spec:
+      initContainers:
+      - name: migrate
+        image: mtclinton/finance-dashboard-backend:latest
+        command: ["./main", "-migrate"]
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: DATABASE_URL
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+      containers:
+      - name: backend
+        image: mtclinton/finance-dashboard-backend:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: DATABASE_URL
+        - name: REDIS_URL
+          value: "redis:6379"
+        - name: PORT
+          value: "8080"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+
