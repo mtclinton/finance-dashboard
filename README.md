@@ -48,14 +48,14 @@ kubectl get nodes
 
 ---
 
-## 2) Build and push images to Docker Hub
+## 2) Build and push images to Docker Hub (optional)
 
 You will need to be logged in to Docker Hub locally:
 ```bash
 docker login
 ```
 
-### Backend (from the backend project root)
+### Backend (optional)
 Clone the [backend project](https://github.com/mtclinton/finance-dashboard-backend) and substitute the below dockerhub username with your own:
 ```bash
 # Build and push
@@ -65,7 +65,7 @@ docker push docker.io/mtclinton/finance-dashboard-backend:latest
 ```
 Update finance-dashboard.yaml backend image to your image
 
-### Frontend (from the frontend project root)
+### Frontend (optional)
 Clone the [frontend project](https://github.com/mtclinton/finance-dashboard-frontend) and substitute the below dockerhub username with your own:
 ```bash
 cd finance-dashboard-frontend
