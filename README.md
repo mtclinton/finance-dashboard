@@ -1,4 +1,5 @@
 # Finance Dashboard on Minikube (Linux)
+![](demo.gif)
 
 This guide walks through:
 - Installing and starting Minikube on Linux
